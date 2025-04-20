@@ -1,0 +1,41 @@
+
+services:
+
+    ### Fastembed ###
+
+    fastembed:
+        build: ./base
+        container_name: fastembed
+        image: dcr.svc.obaa.cloud/fastembed:v0.6.0
+        ports:
+            - "8490:8000"
+        environment:
+            - FASTEMBED_MODEL=BAAI/bge-small-en-v1.5
+        volumes:
+          - ./storage/model_cache:/app/model_cache
+        stdin_open: true
+        tty: true
+        
+
+    ### Fastembed GPU ###
+
+
+    fastembed-gpu:
+        build: ./gpu
+        container_name: fastembed-gpu
+        image: dcr.svc.obaa.cloud/fastembed-gpu:v0.6.0
+        ports:
+            - "8491:8000"
+        environment:
+            - FASTEMBED_MODEL=nomic-ai/nomic-embed-text-v1.5
+        volumes:
+          - ./storage/model_cache:/app/model_cache
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        -   driver: nvidia
+                            count: 1  # Or specify a number (e.g., all) or UUID
+                            capabilities: [gpu]
+        stdin_open: true
+        tty: true
