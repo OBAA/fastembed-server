@@ -4,11 +4,11 @@ services:
     ### Fastembed ###
 
     fastembed-cpu:
-        build: ./base
-        container_name: fastembed
-        # image: itsobaa/fastembed:latest
+        # build: ./base
+        container_name: fastembed-cpu
+        image: itsobaa/fastembed:latest
         # image: dcr.svc.obaa.cloud/fastembed:v0.6.0
-        image: dcr.svc.obaa.cloud/fastembed:v0.6.0-0.1
+        # image: dcr.svc.obaa.cloud/fastembed:v0.6.0-0.1
         ports:
             - "8490:8000"
         environment:
@@ -23,11 +23,11 @@ services:
 
 
     fastembed-gpu:
-        build: ./gpu
+        # build: ./gpu
         container_name: fastembed-gpu
-        # image: itsobaa/fastembed-gpu:latest
+        image: itsobaa/fastembed-gpu:latest
         # image: dcr.svc.obaa.cloud/fastembed-gpu:v0.6.0
-        image: dcr.svc.obaa.cloud/fastembed-gpu:v0.6.0-0.1
+        # image: dcr.svc.obaa.cloud/fastembed-gpu:v0.6.0-0.1
         ports:
             - "8491:8000"
         environment:
