@@ -3,7 +3,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastembed import TextEmbedding
 from contextlib import asynccontextmanager
-from typing import Optional, Literal
 
 app = FastAPI()
 embedding_model = None
@@ -13,7 +12,8 @@ MODEL_NAME = os.environ.get("FASTEMBED_MODEL", DEFAULT_MODEL)
 MAX_LENGTH = int(os.environ.get("FASTEMBED_MAX_LENGTH", "512"))
 CACHE_DIR = os.environ.get("FASTEMBED_CACHE_DIR")
 THREADS = os.environ.get("FASTEMBED_THREADS")
-DOC_EMBED_TYPE = os.environ.get("FASTEMBED_DOC_EMBED_TYPE", "default")
+doc_embed_type = os.environ.get("FASTEMBED_DOC_EMBED_TYPE", "default")
+DOC_EMBED_TYPE=  doc_embed_type if doc_embed_type in ["default", "passage"] else "default"
 BATCH_SIZE = int(os.environ.get("FASTEMBED_BATCH_SIZE", "256"))
 PARALLEL = os.environ.get("FASTEMBED_PARALLEL")
 
@@ -32,32 +32,16 @@ async def lifespan(app: FastAPI):
             max_length=MAX_LENGTH,
             cache_dir=CACHE_DIR if CACHE_DIR else "./model_cache",
             threads=int(THREADS) if THREADS else None,
-            doc_embed_type=Literal["default", "passage"](DOC_EMBED_TYPE),
+            doc_embed_type=DOC_EMBED_TYPE,
             batch_size=BATCH_SIZE,
             parallel=int(PARALLEL) if PARALLEL else None,
-            providers=["CUDAExecutionProvider"],
+            providers=["CPUExecutionProvider"],
         )
-        print(f"FastEmbed model '{embedding_model.model_name}' loaded successfully (GPU enabled).")
+        print(f"FastEmbed model '{embedding_model.model_name}' loaded successfully.")
         yield
     except Exception as e:
-        print(f"Error loading FastEmbed model with CUDA: {e}")
-        print(f"Falling back to CPU.")
-        try:
-            embedding_model = TextEmbedding(
-                model_name=MODEL_NAME,
-                max_length=MAX_LENGTH,
-                cache_dir=CACHE_DIR if CACHE_DIR else "./model_cache",
-                threads=int(THREADS) if THREADS else None,
-                doc_embed_type=Literal["default", "passage"](DOC_EMBED_TYPE),
-                batch_size=BATCH_SIZE,
-                parallel=int(PARALLEL) if PARALLEL else None,
-                providers=["CPUExecutionProvider"],
-            )
-            print(f"FastEmbed model '{embedding_model.model_name}' loaded successfully (CPU).")
-            yield
-        except Exception as fallback_e:
-            print(f"Error loading FastEmbed model on CPU: {fallback_e}")
-            yield
+        print(f"Error loading FastEmbed model: {e}")
+        yield
     finally:
         print("Application shutdown.")
 
