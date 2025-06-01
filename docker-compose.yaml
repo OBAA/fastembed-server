@@ -4,17 +4,19 @@ services:
     ### Fastembed ###
 
     fastembed-cpu:
-        # build: ./base
+        build: ./base
         container_name: fastembed-cpu
-        image: itsobaa/fastembed:latest
+        # image: itsobaa/fastembed:latest
         # image: dcr.svc.obaa.cloud/fastembed:v0.6.0
         # image: dcr.svc.obaa.cloud/fastembed:v0.6.0-0.1
+        image: dcr.svc.obaa.cloud/fastembed:v0.6.0-0.2
         ports:
             - "8490:8000"
         environment:
             - FASTEMBED_MODEL=BAAI/bge-small-en-v1.5
         volumes:
-          - ./storage/model_cache:/app/model_cache
+            - ./storage/model_cache:/app/model_cache
+            # - ./storage/logs:/app/logs
         stdin_open: true
         tty: true
         
@@ -23,16 +25,17 @@ services:
 
 
     fastembed-gpu:
-        # build: ./gpu
+        build: ./gpu
         container_name: fastembed-gpu
-        image: itsobaa/fastembed-gpu:latest
+        # image: itsobaa/fastembed-gpu:latest
         # image: dcr.svc.obaa.cloud/fastembed-gpu:v0.6.0
         # image: dcr.svc.obaa.cloud/fastembed-gpu:v0.6.0-0.1
+        image: dcr.svc.obaa.cloud/fastembed-gpu:v0.6.0-0.2
         ports:
             - "8491:8000"
-        environment:
-            - FASTEMBED_MODEL=nomic-ai/nomic-embed-text-v1.5
-            - FASTEMBED_PARALLEL=4
+        # environment:
+        #     - FASTEMBED_MODEL=nomic-ai/nomic-embed-text-v1.5
+        #     - FASTEMBED_PARALLEL=4
         volumes:
           - ./storage/model_cache:/app/model_cache
         deploy:
@@ -44,3 +47,21 @@ services:
                             capabilities: [gpu]
         stdin_open: true
         tty: true
+
+
+    ### Fastembed prometheus exporter ###
+
+
+    # fastembed-prometheus-exporter:
+    #     build: ./log_exporter
+    #     container_name: fastembed-prometheus-exporter
+    #     image: dcr.svc.obaa.cloud/fastembed-prometheus-exporter:v0.0.1
+    #     ports:
+    #         - "8492:8001" # Expose exporter metrics on host port 8491 (port 8001 inside container)
+    #     volumes:
+    #         - ./storage/logs:/app/logs:ro # Read-only access to application logs
+    #     environment:
+    #         - LOG_DIR=/app/logs # Tell the exporter where to find logs
+    #         - PROMETHEUS_EXPORTER_PORT=8001 # Tell the exporter what port to listen on
+    #     depends_on:
+    #         - fastembed-cpu 

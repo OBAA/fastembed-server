@@ -6,12 +6,10 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-ENV HF_HOME=/app/.cache/huggingface
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py .
+COPY main.py prometheus_metrics.py ./
 
 EXPOSE 8000
 
